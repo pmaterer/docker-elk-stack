@@ -1,0 +1,96 @@
+---
+version: "3"
+
+services:
+
+  client:
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.6.2
+    environment:
+      NODE_NAME: client
+      ES_JAVA_OPTS: ${ES_JAVA_OPTS_CLIENT}
+    networks:
+      - elk
+    volumes:
+      - ./elasticsearch/config/client-node.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+    ports:
+      - 9200:9200
+
+  master-01:
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.6.2
+    environment:
+      NODE_NAME: master-01
+      ES_JAVA_OPTS: ${ES_JAVA_OPTS_MASTER}
+    networks:
+      - elk
+    volumes:
+      - ./elasticsearch/config/master-node.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+
+  master-02:
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.6.2
+    environment:
+      NODE_NAME: master-02
+      ES_JAVA_OPTS: ${ES_JAVA_OPTS_MASTER}
+    networks:
+      - elk
+    volumes:
+      - ./elasticsearch/config/master-node.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+
+  master-03:
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.6.2
+    environment:
+      NODE_NAME: master-03
+      ES_JAVA_OPTS: ${ES_JAVA_OPTS_MASTER}
+    networks:
+      - elk
+    volumes:
+      - ./elasticsearch/config/master-node.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+
+  data-01:
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.6.2
+    environment:
+      NODE_NAME: data-01
+      ES_JAVA_OPTS: ${ES_JAVA_OPTS_DATA}
+    networks:
+      - elk
+    volumes:
+      - ./elasticsearch/config/data-node.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+
+  data-02:
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.6.2
+    environment:
+      NODE_NAME: data-02
+      ES_JAVA_OPTS: ${ES_JAVA_OPTS_DATA}
+    networks:
+      - elk
+    volumes:
+      - ./elasticsearch/config/data-node.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+
+  data-03:
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.6.2
+    environment:
+      NODE_NAME: data-03
+      ES_JAVA_OPTS: ${ES_JAVA_OPTS_DATA}
+    networks:
+      - elk
+    volumes:
+      - ./elasticsearch/config/data-node.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash-oss:7.6.2
+    networks:
+      - elk
+    volumes:
+      - ./logstash/pipeline/:/usr/share/logstash/pipeline/
+      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana-oss:7.6.2
+    environment:
+      ELASTICSEARCH_HOSTS: http://client:9200
+    networks:
+      - elk
+    ports:
+      - 5601:5601
+
+networks:
+  elk:
