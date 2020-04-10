@@ -11,7 +11,7 @@ services:
     networks:
       - elk
     volumes:
-      - ./elasticsearch/config/client-node.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+      - ./elasticsearch/config/client.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
     ports:
       - 9200:9200
 
@@ -23,7 +23,7 @@ services:
     networks:
       - elk
     volumes:
-      - ./elasticsearch/config/master-node.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+      - ./elasticsearch/config/master.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
 
   master-02:
     image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.6.2
@@ -33,7 +33,7 @@ services:
     networks:
       - elk
     volumes:
-      - ./elasticsearch/config/master-node.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+      - ./elasticsearch/config/master.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
 
   master-03:
     image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.6.2
@@ -43,7 +43,7 @@ services:
     networks:
       - elk
     volumes:
-      - ./elasticsearch/config/master-node.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+      - ./elasticsearch/config/master.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
 
   data-01:
     image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.6.2
@@ -53,7 +53,7 @@ services:
     networks:
       - elk
     volumes:
-      - ./elasticsearch/config/data-node.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+      - ./elasticsearch/config/data.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
 
   data-02:
     image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.6.2
@@ -63,7 +63,7 @@ services:
     networks:
       - elk
     volumes:
-      - ./elasticsearch/config/data-node.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+      - ./elasticsearch/config/data.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
 
   data-03:
     image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.6.2
@@ -73,7 +73,7 @@ services:
     networks:
       - elk
     volumes:
-      - ./elasticsearch/config/data-node.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+      - ./elasticsearch/config/data.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
 
   logstash:
     image: docker.elastic.co/logstash/logstash-oss:7.6.2
@@ -91,6 +91,26 @@ services:
       - elk
     ports:
       - 5601:5601
+
+  filebeat-setup:
+    image: docker.elastic.co/beats/filebeat-oss:7.6.2
+    networks:
+      - elk
+    command: setup -E setup.kibana.host=kibana:5601 -E output.elasticsearch.hosts=["client:9200"] 
+
+  filebeat:
+    image: docker.elastic.co/beats/filebeat-oss:7.6.2
+    volumes:
+      - ./beats/configs/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - elk
+    environment:
+      ELASTICSEARCH_HOSTS: client:9200
+    command: filebeat -e -strict.perms=false
+    user: root
+
 
 networks:
   elk:

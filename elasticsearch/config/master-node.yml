@@ -1,0 +1,18 @@
+---
+cluster:
+  name: localstack
+  initial_master_nodes:
+    - master-01
+    - master-02
+    - master-03
+discovery:
+  seed_hosts:
+  - master-01
+  - master-02
+  - master-03
+network.host: 0.0.0.0
+node:
+  name: ${NODE_NAME}
+  data: false
+  ingest: false
+  master: true
